@@ -17,3 +17,26 @@ conda env, folder structure, git repo, decision log.
 ## Change log (chronological, cross-referenced to docs/decision.md IDs)
 
 - 2026-08-12 — Phase 0: created project scaffolding (folders, environment.yml, git repo, .gitignore). See D001–D005 in decision.md. No functions/modules exist yet.
+
+## Status: Phase 1 in progress — ingestion entry point live
+
+## Entry points
+
+- `python -m scripts.ingestion.ingest_orders` — CLI entry point for manual runs
+- Internally calls `run_ingestion()`, which is the function Airflow will call directly in Phase 2 (see D008)
+
+## Call chain: scripts/ingestion/ingest_orders.py
+
+1. `__main__` calls `run_ingestion()`
+2. `run_ingestion()` calls `download_dataset()`
+   - authenticates with Kaggle API (reads ~/.kaggle/kaggle.json)
+   - downloads dataset zip to data/raw/olist/
+   - extracts zip contents, deletes the zip
+3. `run_ingestion()` then calls `validate_file()` once per file in `EXPECTED_SCHEMA`
+   - each call: checks file exists -> checks row count -> checks expected columns -> logs null audit
+4. `run_ingestion()` aggregates pass/fail across all files, logs summary, returns True/False
+5. `__main__` converts that to a process exit code (0 = success, 1 = failure) — this is what Airflow will read in Phase 2
+
+## Change log
+
+- 2026-08-23 — Phase 1: added scripts/utils/logging_config.py (shared logger) and scripts/ingestion/ingest_orders.py (download + validate). See D008, D009 in decision.md.
