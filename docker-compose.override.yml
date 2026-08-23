@@ -1,8 +1,19 @@
-version: "3.1"
 services:
   scheduler:
     volumes:
-      - ${USERPROFILE}/.kaggle/kaggle.json:/home/astro/.kaggle/kaggle.json:ro
-  webserver:
+      - type: bind
+        source: ${USERPROFILE}/.kaggle/kaggle.json
+        target: /home/astro/.kaggle/kaggle.json
+        read_only: true
+  api-server:
     volumes:
-      - ${USERPROFILE}/.kaggle/kaggle.json:/home/astro/.kaggle/kaggle.json:ro
+      - type: bind
+        source: ${USERPROFILE}/.kaggle/kaggle.json
+        target: /home/astro/.kaggle/kaggle.json
+        read_only: true
+  dag-processor:
+    volumes:
+      - type: bind
+        source: ${USERPROFILE}/.kaggle/kaggle.json
+        target: /home/astro/.kaggle/kaggle.json
+        read_only: true
