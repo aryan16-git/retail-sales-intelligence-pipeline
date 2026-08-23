@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Conda
+.conda/
+
+# Environment/secrets
+.env
+
+# Data (raw data can be large / shouldn't live in git history)
+data/raw/*
+!data/raw/.gitkeep
+data/external/*
+!data/external/.gitkeep
+
+# Logs
+logs/*.log
+
+# dbt
+dbt_project/target/
+dbt_project/dbt_packages/
+dbt_project/logs/
+
+# Airflow (added ahead of Phase 2)
+.astro/
+airflow_settings.yaml
+
+# OS
+.DS_Store
+Thumbs.db

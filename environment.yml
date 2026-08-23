@@ -1,0 +1,18 @@
+name: retail-pipeline
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pandas=2.2.*
+  - numpy
+  - sqlalchemy=2.*
+  - psycopg2
+  - python-dotenv
+  - requests
+  - jupyterlab
+  - pytest
+  - pip
+  - pip:
+      - dbt-core==1.8.*
+      - dbt-postgres==1.8.*
