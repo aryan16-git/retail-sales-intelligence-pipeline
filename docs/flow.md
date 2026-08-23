@@ -42,3 +42,23 @@ conda env, folder structure, git repo, decision log.
 - 2026-08-23 — Phase 1: added scripts/utils/logging_config.py (shared logger) and scripts/ingestion/ingest_orders.py (download + validate). See D008, D009 in decision.md.
 
 - 2026-08-23 — Phase 1 complete: verified full ingestion run (9/9 files, 99,441 orders etc.), added idempotency check (raw_files_already_valid), added tests/test_ingestion.py (4 tests, all passing), added pytest.ini for import resolution. See D010, D011 in decision.md.
+
+## Status: Phase 2 complete — orchestration live
+
+## Entry points (updated)
+
+- `dags/retail_pipeline_dag.py` — Airflow's entry point; DAG `retail_pipeline_ingestion`
+- DAG's `ingest_and_validate_orders` task (PythonOperator) calls `run_ingestion_task()`, which wraps and calls `run_ingestion()` from Phase 1's `scripts/ingestion/ingest_orders.py`
+- Manual CLI entry point (`python -m scripts.ingestion.ingest_orders`) still works independently — same underlying function, two ways to invoke it
+
+## Call chain: dags/retail_pipeline_dag.py
+
+1. Airflow scheduler/dag-processor parses this file, registers DAG `retail_pipeline_ingestion` (schedule: @daily, retries: 2, retry_delay: 5min)
+2. On trigger (manual or scheduled): PythonOperator runs `run_ingestion_task()`
+3. `run_ingestion_task()` calls `run_ingestion()` (same function from Phase 1 — no duplicated logic)
+4. If `run_ingestion()` returns False, `run_ingestion_task()` raises RuntimeError so Airflow correctly marks the task failed (see D014)
+5. Verified 2026-08-24: task ran successfully via idempotency skip-path (9/9 files re-validated, no re-download) in ~9 seconds
+
+## Change log
+
+- 2026-08-24 — Phase 2: Astro CLI installed, project initialized, pandas/kaggle added to Airflow's requirements.txt, kaggle.json mounted read-only into scheduler/api-server/dag-processor containers. Built dags/retail_pipeline_dag.py wrapping Phase 1's ingestion script. Verified working end-to-end via Airflow UI. See D012-D015 in decision.md.
