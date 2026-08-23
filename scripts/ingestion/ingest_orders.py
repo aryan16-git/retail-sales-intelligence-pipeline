@@ -131,17 +131,29 @@ def validate_file(filename: str, expected_columns: list[str]) -> bool:
     logger.info(f"{filename}: validation passed")
     return True
 
+def raw_files_already_valid() -> bool:
+    """Checks if a previous successful ingestion already left valid files in place,
+    so we can skip re-downloading unchanged data on repeat runs."""
+    if not RAW_DIR.exists():
+        return False
+    return all(
+        validate_file(filename, columns)
+        for filename, columns in EXPECTED_SCHEMA.items()
+    )
 
 def run_ingestion() -> bool:
     """Full ingestion pipeline: download, then validate every expected file. Returns overall success."""
     logger.info("=" * 60)
     logger.info("Starting ingestion run")
 
-    try:
-        download_dataset()
-    except Exception:
-        logger.exception("Download step failed with an unhandled exception")
-        return False
+    if raw_files_already_valid():
+        logger.info("Valid raw files already present — skipping download.")
+    else:
+        try:
+            download_dataset()
+        except Exception:
+            logger.exception("Download step failed with an unhandled exception")
+            return False
 
     logger.info("Starting validation of downloaded files")
     results = {

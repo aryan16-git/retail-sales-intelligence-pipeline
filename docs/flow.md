@@ -18,7 +18,7 @@ conda env, folder structure, git repo, decision log.
 
 - 2026-08-12 — Phase 0: created project scaffolding (folders, environment.yml, git repo, .gitignore). See D001–D005 in decision.md. No functions/modules exist yet.
 
-## Status: Phase 1 in progress — ingestion entry point live
+## Status: Phase 1 in complete — ingestion entry point live
 
 ## Entry points
 
@@ -40,3 +40,5 @@ conda env, folder structure, git repo, decision log.
 ## Change log
 
 - 2026-08-23 — Phase 1: added scripts/utils/logging_config.py (shared logger) and scripts/ingestion/ingest_orders.py (download + validate). See D008, D009 in decision.md.
+
+- 2026-08-23 — Phase 1 complete: verified full ingestion run (9/9 files, 99,441 orders etc.), added idempotency check (raw_files_already_valid), added tests/test_ingestion.py (4 tests, all passing), added pytest.ini for import resolution. See D010, D011 in decision.md.
