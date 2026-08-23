@@ -14,5 +14,5 @@ dependencies:
   - pytest
   - pip
   - pip:
-      - dbt-core==1.8.*
-      - dbt-postgres==1.8.*
+      - dbt-core>=1.11,<1.12
+      - dbt-postgres>=1.10,<1.11
