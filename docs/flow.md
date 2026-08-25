@@ -62,3 +62,19 @@ conda env, folder structure, git repo, decision log.
 ## Change log
 
 - 2026-08-24 — Phase 2: Astro CLI installed, project initialized, pandas/kaggle added to Airflow's requirements.txt, kaggle.json mounted read-only into scheduler/api-server/dag-processor containers. Built dags/retail_pipeline_dag.py wrapping Phase 1's ingestion script. Verified working end-to-end via Airflow UI. See D012-D015 in decision.md.
+
+## Status: Phase 3 complete — raw layer populated in warehouse via Airflow
+
+## Call chain: dags/retail_pipeline_dag.py (updated)
+
+1. Scheduler/dag-processor parses DAG, registers `retail_pipeline_ingestion`
+2. `ingest_and_validate_orders` runs first (Phase 1/2 logic, unchanged)
+3. On success, `load_raw_to_warehouse` runs — calls `run_load_task()` -> `run_load()` in scripts/loading/load_to_warehouse.py
+4. `run_load()` calls `get_engine()` (resolves AIRFLOW_WAREHOUSE_DB_HOST/PORT when inside a container, WAREHOUSE_DB_HOST/PORT for local runs) then `load_table()` once per file in EXPECTED_SCHEMA, loading each into raw.<table_name> via pandas .to_sql() with if_exists="replace"
+5. Verified 2026-08-25: full pipeline run via Airflow UI trigger — both tasks succeeded, 9/9 tables loaded into raw schema with row counts matching source validation exactly
+
+## Change log
+
+- 2026-08-25 — Phase 3: created warehouse-postgres container (raw/staging/marts schemas), built scripts/loading/load_to_warehouse.py, added load_raw_to_warehouse as second DAG task chained after ingestion. Resolved container networking issues (Airflow 3 service names, host-vs-container port mapping, build-time vs live-mounted scripts). See D016-D018 in decision.md.
+
+- 2026-08-25 — Phase 3 verified clean after resolving a transient row-count mismatch caused by overlapping runs during debugging (see D019). Final verification: all 9 raw tables match source row counts exactly.
