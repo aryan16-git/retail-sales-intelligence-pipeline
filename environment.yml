@@ -14,6 +14,7 @@ dependencies:
   - pytest
   - pip
   - pip:
-      - dbt-core>=1.11,<1.12
+      - dbt-core>=1.10,<1.11
       - dbt-postgres>=1.10,<1.11
       - kaggle
+      - "python-dotenv[cli]"

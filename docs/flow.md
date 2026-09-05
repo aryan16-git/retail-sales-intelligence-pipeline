@@ -78,3 +78,17 @@ conda env, folder structure, git repo, decision log.
 - 2026-08-25 — Phase 3: created warehouse-postgres container (raw/staging/marts schemas), built scripts/loading/load_to_warehouse.py, added load_raw_to_warehouse as second DAG task chained after ingestion. Resolved container networking issues (Airflow 3 service names, host-vs-container port mapping, build-time vs live-mounted scripts). See D016-D018 in decision.md.
 
 - 2026-08-25 — Phase 3 verified clean after resolving a transient row-count mismatch caused by overlapping runs during debugging (see D019). Final verification: all 9 raw tables match source row counts exactly.
+
+
+## Status: Phase 4 in progress — staging layer complete
+
+## Call chain: dbt staging layer
+
+1. `models/staging/_sources.yml` declares the 9 raw tables as dbt sources
+2. Each `stg_*.sql` model selects from its corresponding `{{ source('raw', '<table>') }}`, renaming/casting columns, no business logic
+3. `macros/generate_schema_name.sql` ensures models land in their configured schema (`staging`) rather than a concatenated one
+4. `dbt run --select path:models/staging` builds all 9 as views in the `staging` schema
+
+## Change log (continued)
+
+- 2026-09-05 — Phase 4 staging layer complete: 9 staging models built successfully after resolving empty-file issue (see D020) and schema-naming override (D021). Old broken project folder (dbt_project/retail_dbt_broken) deleted.
