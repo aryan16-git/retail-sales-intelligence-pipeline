@@ -1,0 +1,55 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One row per unique customer.
+    columns:
+      - name: customer_id
+        description: Primary key — unique per customer record (note some customers can have multiple customer_id per customer_unique_id, representing separate orders).
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_products
+    description: One row per product, with category translated to English.
+    columns:
+      - name: product_id
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_sellers
+    description: One row per unique seller.
+    columns:
+      - name: seller_id
+        tests:
+          - unique
+          - not_null
+
+  - name: fct_order_items
+    description: One row per order item (the finest grain in this dataset) — the central fact table.
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: product_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_products')
+                field: product_id
+      - name: seller_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_sellers')
+                field: seller_id
+      - name: price
+        tests:
+          - not_null

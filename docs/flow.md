@@ -92,3 +92,17 @@ conda env, folder structure, git repo, decision log.
 ## Change log (continued)
 
 - 2026-09-05 — Phase 4 staging layer complete: 9 staging models built successfully after resolving empty-file issue (see D020) and schema-naming override (D021). Old broken project folder (dbt_project/retail_dbt_broken) deleted.
+
+
+## Status: Phase 4 complete — star schema built and tested
+
+## Call chain: dbt mart layer
+
+1. `dim_customers`, `dim_products`, `dim_sellers` each select from their corresponding staging model, `dim_products` additionally left-joins `stg_product_category_translation`
+2. `fct_order_items` joins `stg_order_items` (base grain) to `stg_orders` and a pre-aggregated `stg_order_payments` (grouped by order_id first, to avoid fan-out — see D024)
+3. `dbt run --select path:models/marts` materializes all 4 as tables in the `marts` schema
+4. `dbt test --select path:models/marts` runs 13 tests (uniqueness, not-null, referential integrity) — all passing
+
+## Change log (continued)
+
+- 2026-09-05 — Phase 4 complete: mart layer built (3 dims + 1 fact), 13 tests passing after fixing a test-authoring mistake (see D025). Full pipeline now runs raw CSVs -> ingestion -> warehouse -> staging -> marts, tested end to end.
